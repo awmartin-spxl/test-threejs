@@ -90,6 +90,32 @@ const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
 scene.add(lines);
 
+const webcamVideo = document.getElementById("webcam-video");
+const webcamStatus = document.getElementById("webcam-status");
+
+function showWebcamStatus(message) {
+  webcamStatus.textContent = message;
+  webcamStatus.hidden = false;
+}
+
+async function initWebcam() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    showWebcamStatus("Webcam not supported in this browser.");
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    webcamVideo.srcObject = stream;
+    webcamStatus.hidden = true;
+  } catch (err) {
+    showWebcamStatus("Webcam unavailable.");
+    console.warn("Unable to access webcam:", err);
+  }
+}
+
+initWebcam();
+
 function onWindowResize() {
   const width = container.clientWidth;
   const height = container.clientHeight;
