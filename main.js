@@ -57,18 +57,38 @@ const cubePositions = [
   [4, -1],
 ];
 
-cubePositions.forEach(([x, z], i) => {
-  const size = 1 + Math.random() * 0.75;
-  const geometry = new THREE.BoxGeometry(size, size, size);
+const cubeSize = 1;
+const cubes = cubePositions.map(([x, z], i) => {
+  const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
   const material = new THREE.MeshStandardMaterial({
     color: cubeColors[i % cubeColors.length],
   });
   const cube = new THREE.Mesh(geometry, material);
-  cube.position.set(x, size / 2, z);
+  cube.position.set(x, cubeSize / 2, z);
   cube.castShadow = true;
   cube.receiveShadow = true;
   scene.add(cube);
+  return cube;
 });
+
+const linePositions = [];
+for (let i = 0; i < cubes.length; i++) {
+  for (let j = i + 1; j < cubes.length; j++) {
+    linePositions.push(
+      cubes[i].position.x, cubes[i].position.y, cubes[i].position.z,
+      cubes[j].position.x, cubes[j].position.y, cubes[j].position.z
+    );
+  }
+}
+
+const lineGeometry = new THREE.BufferGeometry();
+lineGeometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(linePositions, 3)
+);
+const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+scene.add(lines);
 
 function onWindowResize() {
   const width = container.clientWidth;
